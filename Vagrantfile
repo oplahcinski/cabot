@@ -8,7 +8,7 @@ Vagrant::configure("2") do |config|
   config.vm.box = "precise64"
 
   config.vm.provider "virtualbox" do |v|
-    v.customize ["modifyvm", :id, "--memory", "1024", "--cpus", "1"]
+    v.customize ["modifyvm", :id, "--memory", "2048", "--cpus", "2"]
   end
 
   # The url from where the 'config.vm.box' box will be fetched if it
@@ -23,6 +23,7 @@ Vagrant::configure("2") do |config|
   # any other machines on the same network, but cannot be accessed (through this
   # network interface) by any external networks.
   config.vm.network "forwarded_port", guest: 5001, host: 5001
+  config.vm.network "private_network", ip: "192.168.200.11"
 
   # Share an additional folder to the guest VM. The first argument is
   # an identifier, the second is the path on the guest to mount the

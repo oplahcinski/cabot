@@ -9,6 +9,7 @@ cabot.egg-info
 cabot/static/CACHE
 .env
 .DS_Store
+.idea
 celerybeat-schedule
 *.pyc
 *.swp
