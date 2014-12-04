@@ -44,6 +44,7 @@ $(document).ready ->
         url: GRAPHITE_ENDPOINT
         data:
           metric: request.term
+          from_range: $('#id_from_range').val()
       .done (data) ->
         metricList = data.matchingMetrics?.metrics?.metrics
         if metricList
@@ -61,6 +62,7 @@ updateGraphiteData = () ->
     url: GRAPHITE_ENDPOINT
     data:
       metric: m
+      from_range: $('#id_from_range').val()
   .done (data) ->
     if data.data? and data.data.length? != 0
       $('#graphite_data_container').text JSON.stringify(data.data, undefined, 2)

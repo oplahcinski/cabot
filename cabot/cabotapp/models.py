@@ -369,6 +369,13 @@ class StatusCheck(PolymorphicModel):
         null=True,
         help_text='fully.qualified.name of the Graphite metric you want to watch. This can be any valid Graphite expression, including wildcards, multiple hosts, etc.',
     )
+    from_range = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text='A range other than the default. Ex. -1minute, -1hour, -1day, -1week, noon, 6pm'
+    )
+
     check_type = models.CharField(
         choices=CHECK_TYPES,
         max_length=100,
@@ -568,7 +575,7 @@ class GraphiteStatusCheck(StatusCheck):
         )
 
     def _run(self):
-        series = parse_metric(self.metric, mins_to_check=self.frequency)
+        series = parse_metric(self.metric, mins_to_check=self.frequency, from_range=self.from_range)
         failure_value = None
         if series['error']:
             failed = True

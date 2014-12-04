@@ -9,13 +9,13 @@ graphite_from = settings.GRAPHITE_FROM
 auth = (user, password)
 
 
-def get_data(target_pattern):
+def get_data(target_pattern, from_range=None):
     resp = requests.get(
         graphite_api + 'render', auth=auth,
         params={
             'target': target_pattern,
             'format': 'json',
-            'from': graphite_from
+            'from': from_range or graphite_from,
         }
     )
     resp.raise_for_status()
@@ -28,7 +28,7 @@ def get_matching_metrics(pattern):
         graphite_api + 'metrics/find/', auth=auth,
         params={
             'query': pattern,
-            'format': 'completer'
+            'format': 'completer',
         },
         headers={
             'accept': 'application/json'
@@ -52,7 +52,7 @@ def get_all_metrics(limit=None):
     return metrics
 
 
-def parse_metric(metric, mins_to_check=5):
+def parse_metric(metric, mins_to_check=5, from_range=None):
     """
     Returns dict with:
     - num_series_with_data: Number of series with data
@@ -69,7 +69,7 @@ def parse_metric(metric, mins_to_check=5):
         'raw': ''
     }
     try:
-        data = get_data(metric)
+        data = get_data(metric, from_range=from_range)
     except requests.exceptions.RequestException, e:
         ret['error'] = 'Error getting data from Graphite: %s' % e
         ret['raw'] = ret['error']

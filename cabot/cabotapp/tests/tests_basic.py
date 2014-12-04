@@ -476,6 +476,7 @@ class TestAPI(LocalTestCase):
                     'metric': u'stats.fake.value',
                     'check_type': u'>',
                     'value': u'9.0',
+                    'from_range': None,
                     'expected_num_hosts': 0,
                     'id': 1
                 },
@@ -560,6 +561,7 @@ class TestAPI(LocalTestCase):
                     'metric': u'stats.fakeval2',
                     'check_type': u'<',
                     'value': u'2',
+                    'from_range': u'None',
                     'expected_num_hosts': 0,
                     'id': 5
                 },
