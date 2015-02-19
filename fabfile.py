@@ -9,10 +9,9 @@ env.use_ssh_config = True
 env.user = 'ubuntu'
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-HOME_DIR = '/home/ubuntu'
-DEPLOY_PATH = '%s/cabot' % HOME_DIR
-LOG_DIR = '/var/log/cabot/'
-VENV_DIR = '%s/venv' % HOME_DIR
+DEPLOY_PATH = '/data/web/cabot.cyphersystems/src/releases/current/cabot'
+LOG_DIR = '/data/log/cabot/'
+VENV_DIR = '/data/virtualenv/cabot'
 BACKUP_DIR = '/tmp/'
 
 PG_DATABASE = 'index'
@@ -69,7 +68,7 @@ def setup_upstart(deploy_path=DEPLOY_PATH):
         env_file = os.path.join(DEPLOY_PATH, 'conf', '%s.env' %
                                 env.deploy_version)
         template_file = os.path.join(DEPLOY_PATH, 'upstart')
-        sudo('foreman export upstart /etc/init -f {conf} -e {env} -u ubuntu -a cabot -t {tmplt}'.format(
+        sudo('foreman export upstart /etc/init -f {conf} -e {env} -u oplahcinski -a cabot -t {tmplt}'.format(
             conf=procfile, env=env_file, tmplt=template_file))
 
 
@@ -77,7 +76,7 @@ def production():
     """
     Select production instance(s)
     """
-    env.hosts = ['cabot.arachnys.com']
+    env.hosts = ['cabot.cypherysystems.com']
 
 
 def restart():
@@ -116,9 +115,10 @@ def deploy(deploy_version=None):
     # - upload and unzip into DEPLOY_PATH
     env.deploy_version = deploy_version or 'production'
     dirname = check_output(
-        ["echo \"$(date +'%Y-%m-%d')-$(git log --pretty=format:'%h' -n 1)\""], shell=True).strip('\n ')
-    deploy_path = os.path.join(HOME_DIR, dirname)
-    run('mkdir -p {}'.format(deploy_path))
+        ["echo \"$(date +'%Y-%m-%d:%H:%M:%S')-$(git log --pretty=format:'%h' -n 1)\""], shell=True).strip('\n ')
+    deploy_path = os.path.join("/data/web/cabot.cyphersystems/src/releases/", dirname)
+    sudo('mkdir -p {}'.format(deploy_path))
+    sudo('chown oplahcinski:oplahcinski -R {}'.format(deploy_path))
     print 'Uploading project to %s' % deploy_path
     rsync_project(
         remote_dir=deploy_path,
@@ -129,12 +129,11 @@ def deploy(deploy_version=None):
     with cd(deploy_path):
         _ensure_dirs()
         _setup_venv()
-        create_database()
         install_requirements(deploy_path)
         run_migrations(deploy_path)
         collect_static(deploy_path)
         # This may cause a bit of downtime
-        run('ln -sfn {new} {current}'.format(
+        sudo('ln -sfn {new} {current}'.format(
             new=deploy_path,
             current=DEPLOY_PATH
             ))
